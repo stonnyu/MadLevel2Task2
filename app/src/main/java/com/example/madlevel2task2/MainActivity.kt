@@ -69,17 +69,15 @@ class MainActivity : AppCompatActivity() {
 
                 when (direction) {
                     //Remove question in case answer is true
-                    ItemTouchHelper.RIGHT -> if (answer) {
-                        questions.removeAt(position)
-                    } else {
-                        showError()
+                    ItemTouchHelper.RIGHT -> {
+                        if (answer) questions.removeAt(position)
+                        else showError()
                     }
 
                     //Remove question in case answer is false
-                    ItemTouchHelper.LEFT -> if (!answer) {
-                        questions.removeAt(position)
-                    } else {
-                        showError()
+                    ItemTouchHelper.LEFT -> {
+                        if (!answer) questions.removeAt(position)
+                        else showError()
                     }
                 }
                 questionAdapter.notifyDataSetChanged()
