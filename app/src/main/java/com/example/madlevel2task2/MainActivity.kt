@@ -26,21 +26,21 @@ class MainActivity : AppCompatActivity() {
 
     private fun initViews() {
         binding.rvQuestions.layoutManager =
-            LinearLayoutManager(this@MainActivity, RecyclerView.VERTICAL, false)
+                LinearLayoutManager(this@MainActivity, RecyclerView.VERTICAL, false)
         binding.rvQuestions.addItemDecoration(
-            DividerItemDecoration(
-                this@MainActivity,
-                DividerItemDecoration.VERTICAL
-            )
+                DividerItemDecoration(
+                        this@MainActivity,
+                        DividerItemDecoration.VERTICAL
+                )
         )
         binding.rvQuestions.adapter = questionAdapter
 
         for (i in QuestionModel.QUESTION_NAMES.indices) {
             questions.add(
-                QuestionModel(
-                    QuestionModel.QUESTION_NAMES[i],
-                    QuestionModel.QUESTION_STATUS[i]
-                )
+                    QuestionModel(
+                            QuestionModel.QUESTION_NAMES[i],
+                            QuestionModel.QUESTION_STATUS[i]
+                    )
             )
         }
 
@@ -52,33 +52,31 @@ class MainActivity : AppCompatActivity() {
         Snackbar.make(rvQuestions, getString(R.string.error_message), Snackbar.LENGTH_SHORT).show()
     }
 
+    private fun validateAnswer(questionIndex: Int, expectedResponse: Boolean) {
+        val answer = questions[questionIndex].questionBoolean
+
+        if (answer == expectedResponse) questions.removeAt(questionIndex)
+        else showError()
+    }
+
     private fun createItemTouchHelper(): ItemTouchHelper {
         val callback = object :
-            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
+                ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
             override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
             ): Boolean {
                 return false
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val position = viewHolder.adapterPosition
-                var answer = questions[position].questionBoolean
-
                 when (direction) {
                     //Remove question in case answer is true
-                    ItemTouchHelper.RIGHT -> {
-                        if (answer) questions.removeAt(position)
-                        else showError()
-                    }
+                    ItemTouchHelper.RIGHT -> validateAnswer(viewHolder.adapterPosition, true)
 
                     //Remove question in case answer is false
-                    ItemTouchHelper.LEFT -> {
-                        if (!answer) questions.removeAt(position)
-                        else showError()
-                    }
+                    ItemTouchHelper.LEFT -> validateAnswer(viewHolder.adapterPosition, false)
                 }
                 questionAdapter.notifyDataSetChanged()
             }
