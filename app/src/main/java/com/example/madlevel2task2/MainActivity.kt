@@ -48,6 +48,10 @@ class MainActivity : AppCompatActivity() {
         createItemTouchHelper().attachToRecyclerView(rvQuestions)
     }
 
+    private fun showError() {
+        Snackbar.make(rvQuestions, getString(R.string.error_message), Snackbar.LENGTH_SHORT).show()
+    }
+
     private fun createItemTouchHelper(): ItemTouchHelper {
         val callback = object :
             ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
@@ -68,19 +72,16 @@ class MainActivity : AppCompatActivity() {
                     ItemTouchHelper.RIGHT -> if (answer) {
                         questions.removeAt(position)
                     } else {
-                        Snackbar.make(rvQuestions, "That is incorrect", Snackbar.LENGTH_SHORT)
-                            .show()
+                        showError()
                     }
 
                     //Remove question in case answer is false
                     ItemTouchHelper.LEFT -> if (!answer) {
                         questions.removeAt(position)
                     } else {
-                        Snackbar.make(rvQuestions, "That is incorrect", Snackbar.LENGTH_SHORT)
-                            .show()
+                        showError()
                     }
                 }
-
                 questionAdapter.notifyDataSetChanged()
             }
         }
