@@ -21,27 +21,36 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         initViews()
     }
 
     private fun initViews() {
         binding.rvQuestions.layoutManager =
             LinearLayoutManager(this@MainActivity, RecyclerView.VERTICAL, false)
-        binding.rvQuestions.addItemDecoration(DividerItemDecoration(this@MainActivity, DividerItemDecoration.VERTICAL))
-        binding.rvQuestions.adapter =
-            questionAdapter
+        binding.rvQuestions.addItemDecoration(
+            DividerItemDecoration(
+                this@MainActivity,
+                DividerItemDecoration.VERTICAL
+            )
+        )
+        binding.rvQuestions.adapter = questionAdapter
 
         for (i in QuestionModel.QUESTION_NAMES.indices) {
-            questions.add(QuestionModel(QuestionModel.QUESTION_NAMES[i]))
-
+            questions.add(
+                QuestionModel(
+                    QuestionModel.QUESTION_NAMES[i],
+                    QuestionModel.QUESTION_STATUS[i]
+                )
+            )
         }
+
         questionAdapter.notifyDataSetChanged()
         createItemTouchHelper().attachToRecyclerView(rvQuestions)
     }
 
     private fun createItemTouchHelper(): ItemTouchHelper {
-        val callback = object : ItemTouchHelper.SimpleCallback(0,  ItemTouchHelper.RIGHT) {
+        val callback = object :
+            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
@@ -52,11 +61,28 @@ class MainActivity : AppCompatActivity() {
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
-                questions.removeAt(position)
-                Snackbar.make(rvQuestions, "That is incorrect", Snackbar.LENGTH_SHORT).show()
+                var answer = questions[position].questionBoolean
+
+                when (direction) {
+                    //Remove question in case answer is true
+                    ItemTouchHelper.RIGHT -> if (answer) {
+                        questions.removeAt(position)
+                    } else {
+                        Snackbar.make(rvQuestions, "That is incorrect", Snackbar.LENGTH_SHORT)
+                            .show()
+                    }
+
+                    //Remove question in case answer is false
+                    ItemTouchHelper.LEFT -> if (!answer) {
+                        questions.removeAt(position)
+                    } else {
+                        Snackbar.make(rvQuestions, "That is incorrect", Snackbar.LENGTH_SHORT)
+                            .show()
+                    }
+                }
+
                 questionAdapter.notifyDataSetChanged()
             }
-
         }
         return ItemTouchHelper(callback)
     }
